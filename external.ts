@@ -1,11 +1,9 @@
-import { of } from "rxjs";
-import { filter, map, tap } from "rxjs/operators";
+import { fromEvent } from "rxjs";
+import { debounceTime, map } from "rxjs/operators";
 
+const sliderInput = document.querySelector('input#slider');
 
-of(1, 7, 3, 6, 2).pipe(
-  filter(value => value > 5),
-  map(value => value * 2),
-  tap({
-    next: value => console.log('Spy:', value)
-  }),
-).subscribe(value => console.log('Output:', value));
+fromEvent(sliderInput, 'input').pipe(
+  debounceTime(2000),
+  map(event => event.target['value'])
+).subscribe(value => console.log(value));
