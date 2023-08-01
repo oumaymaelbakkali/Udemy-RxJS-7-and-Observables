@@ -1,15 +1,28 @@
-import { from } from "rxjs";
+import { fromEvent, Observable } from "rxjs";
+
+const triggerButton = document.querySelector('button#trigger');
 
 
-const somePromise = new Promise((resolve, reject) => {
-  // resolve('Resolved!');
-  reject('Rejected!');
+
+
+const triggerClick$ = new Observable<MouseEvent>(subscriber => {
+  const clickHandlerFn = event => {
+    console.log('Event callback executed');
+    subscriber.next(event);
+  };
+
+  triggerButton.addEventListener('click', clickHandlerFn);
+
+  return () => {
+    triggerButton.removeEventListener('click', clickHandlerFn);
+  };
 });
 
-const observableFromPromise$ = from(somePromise);
+const subscription = triggerClick$.subscribe(
+  event => console.log(event.type, event.x, event.y)
+);
 
-observableFromPromise$.subscribe({
-  next: value => console.log(value),
-  error: err => console.log('Error:', err),
-  complete: () => console.log('Completed')
-});
+setTimeout(() => {
+  console.log('Unsubscribe');
+  subscription.unsubscribe();
+}, 5000);
