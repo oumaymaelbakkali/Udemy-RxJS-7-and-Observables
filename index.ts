@@ -1,24 +1,29 @@
-import { Observable } from "rxjs";
+import { BehaviorSubject, fromEvent, Subject } from "rxjs";
+import { withLatestFrom } from "rxjs/operators";
 
+const loggedInSpan: HTMLElement = document.querySelector('span#logged-in');
+const loginButton: HTMLElement = document.querySelector('button#login');
+const logoutButton: HTMLElement = document.querySelector('button#logout');
+const printStateButton: HTMLElement = document.querySelector('button#print-state');
 
-const observable$ = new Observable<string>(subscriber => {
-  console.log('Observable executed');
-  subscriber.next('Alice');
-  subscriber.next('Ben');
-  setTimeout(() => {
-    subscriber.next('Charlie');
-  }, 2000);
-  setTimeout(() => subscriber.error(new Error('Failure')), 4000);
+const isLoggedIn$ = new BehaviorSubject<boolean>(false);
 
-  return () => {
-    console.log('Teardown');
-  };
+fromEvent(loginButton, 'click').subscribe(() => isLoggedIn$.next(true));
+fromEvent(logoutButton, 'click').subscribe(() => isLoggedIn$.next(false));
+
+// Navigation bar
+isLoggedIn$.subscribe(
+  isLoggedIn => loggedInSpan.innerText = isLoggedIn.toString()
+);
+
+// Buttons
+isLoggedIn$.subscribe(isLoggedIn => {
+  logoutButton.style.display = isLoggedIn ? 'block' : 'none';
+  loginButton.style.display = !isLoggedIn ? 'block' : 'none';
 });
 
-console.log('Before subscribe');
-observable$.subscribe({
-  next: value => console.log(value),
-  error: err => console.log(err.message),
-  complete: () => console.log('Completed')
-});
-console.log('After subscribe');
+fromEvent(printStateButton, 'click').pipe(
+  withLatestFrom(isLoggedIn$)
+).subscribe(
+  ([event, isLoggedIn]) => console.log('User is logged in:', isLoggedIn)
+);
