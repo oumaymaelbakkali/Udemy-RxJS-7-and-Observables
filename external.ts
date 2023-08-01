@@ -1,22 +1,17 @@
-import { Observable } from "rxjs";
 
 
-const interval$ = new Observable<number>(subscriber => {
-  let counter = 1;
+import { ajax } from "rxjs/ajax";
 
-  const intervalId = setInterval(() => {
-    console.log('Emitted', counter);
-    subscriber.next(counter++);
-  }, 2000);
+const ajax$ = ajax<any>('https://random-data-api.com/api/name/random_name');
 
-  return () => {
-    clearInterval(intervalId);
-  };
-});
+ajax$.subscribe(
+  data => console.log('Sub 1:', data.response.first_name)
+);
 
-const subscription = interval$.subscribe(value => console.log(value));
+ajax$.subscribe(
+  data => console.log('Sub 2:', data.response.first_name)
+);
 
-setTimeout(() => {
-  console.log('Unsubscribe');
-  subscription.unsubscribe();
-}, 7000);
+ajax$.subscribe(
+  data => console.log('Sub 3:', data.response.first_name)
+);
