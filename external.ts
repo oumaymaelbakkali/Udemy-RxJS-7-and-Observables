@@ -1,17 +1,28 @@
+import { Observable, of } from "rxjs";
 
 
-import { ajax } from "rxjs/ajax";
+ourOwnOf('Alice', 'Ben', 'Charlie').subscribe({
+  next: value => console.log(value),
+  complete: () => console.log('Completed')
+});
 
-const ajax$ = ajax<any>('https://random-data-api.com/api/name/random_name');
+// const names$ = new Observable<string>(subscriber => {
+//   subscriber.next('Alice');
+//   subscriber.next('Ben');
+//   subscriber.next('Charlie');
+//   subscriber.complete();
+// });
 
-ajax$.subscribe(
-  data => console.log('Sub 1:', data.response.first_name)
-);
+// names$.subscribe({
+//   next: value => console.log(value),
+//   complete: () => console.log('Completed')
+// });
 
-ajax$.subscribe(
-  data => console.log('Sub 2:', data.response.first_name)
-);
-
-ajax$.subscribe(
-  data => console.log('Sub 3:', data.response.first_name)
-);
+function ourOwnOf(...args: string[]): Observable<string> {
+  return new Observable<string>(subscriber => {
+    for(let i = 0; i < args.length; i++) {
+      subscriber.next(args[i]);
+    }
+    subscriber.complete();
+  });
+}
