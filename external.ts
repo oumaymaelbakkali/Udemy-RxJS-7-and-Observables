@@ -1,20 +1,24 @@
+import { combineLatest, fromEvent } from "rxjs";
 
+const temperatureInput = document.getElementById('temperature-input');
+const conversionDropdown = document.getElementById('conversion-dropdown');
+const resultText = document.getElementById('result-text');
 
-import { forkJoin } from "rxjs";
-// Mike is from New Delhi and likes to eat pasta.
+const temperatureInputEvent$ = fromEvent(temperatureInput, 'input');
+const conversionInputEvent$ = fromEvent(conversionDropdown, 'input');
 
-import { ajax } from "rxjs/ajax";
+combineLatest([temperatureInputEvent$, conversionInputEvent$]).subscribe(
+  ([temperatureInputEvent, conversionInputEvent]) => {
+    const temperature = Number(temperatureInputEvent.target['value']);
+    const conversion = conversionInputEvent.target['value'];
 
-const randomName$ = ajax('https://random-data-api.com/api/name/random_name');
+    let result: number;
+    if (conversion === 'f-to-c') {
+      result = (temperature - 32) * 5/9;
+    } else if (conversion === 'c-to-f') {
+      result = temperature * 9/5 + 32;
+    }
 
-const randomNation$ = ajax('https://random-data-api.com/api/nation/random_nation');
-
-const randomFood$ = ajax('https://random-data-api.com/api/food/random_food');
-
-// randomName$.subscribe(ajaxResponse => console.log(ajaxResponse.response.first_name));
-// randomNation$.subscribe(ajaxResponse => console.log(ajaxResponse.response.capital));
-// randomFood$.subscribe(ajaxResponse => console.log(ajaxResponse.response.dish));
-
-forkJoin([randomName$, randomNation$, randomFood$]).subscribe(
-  ([nameAjax, nationAjax, foodAjax]) => console.log(`${nameAjax.response.first_name} is from ${nationAjax.response.capital} and likes to eat ${foodAjax.response.dish}.`)
+    resultText.innerText = String(result);
+  }
 );
